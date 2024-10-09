@@ -17,8 +17,15 @@ The practice session starts with the AI asking the user if they would like to pr
 ```sh
 curl -X POST http://localhost:5001/start -H "Content-Type: application/json" -d '{}'
 ```
-- **Expected Response**: A JSON object containing an audio URL that asks: "Would you like to practice colors today?".
-- The front end should play the audio to prompt the user.
+- **Expected Response**: 
+  ```json
+  {
+    "audioUrl": "/audio/<filename>",
+    "prompt": "Would you like to practice colors today?"
+  }
+  ```
+  - **audioUrl**: URL to the generated audio file.
+  - **prompt**: Text version of the prompt.
 
 ### 2. User Response (Voice)
 The user speaks their response, such as "Yes," and uploads the recorded audio file.
@@ -26,7 +33,13 @@ The user speaks their response, such as "Yes," and uploads the recorded audio fi
 ```sh
 curl -X POST http://localhost:5001/transcribe-audio -F "file=@path/to/your/audio-file.mp3"
 ```
-- **Expected Response**: JSON with the transcribed text, e.g., `"transcribedText": "yes"`.
+- **Expected Response**: 
+  ```json
+  {
+    "transcribedText": "yes"
+  }
+  ```
+  - **transcribedText**: Text transcription of the user's audio response.
 
 ### 3. Process User Response
 Use the transcribed text (e.g., "yes") to progress the session.
@@ -34,8 +47,15 @@ Use the transcribed text (e.g., "yes") to progress the session.
 ```sh
 curl -X POST http://localhost:5001/user-response -H "Content-Type: application/json" -d '{"response": "yes"}'
 ```
-- **Expected Response**: The AI responds with an audio URL saying: "Great! Let's start with the color [random color]. Can you show me the sign for [color]?".
-- The front end should play the audio to encourage the user to practice the sign.
+- **Expected Response**: 
+  ```json
+  {
+    "audioUrl": "/audio/<filename>",
+    "prompt": "Great! Let's start with the color [random color]. Can you show me the sign for [color]?"
+  }
+  ```
+  - **audioUrl**: URL to the generated audio file.
+  - **prompt**: Text version of the prompt.
 
 ### 4. Request Help (Optional)
 If the user struggles and needs help:
@@ -45,7 +65,13 @@ If the user struggles and needs help:
    ```sh
    curl -X POST http://localhost:5001/transcribe-audio -F "file=@path/to/your/audio-file.mp3"
    ```
-   - **Expected Response**: JSON with `"transcribedText": "i need help"`.
+   - **Expected Response**: 
+     ```json
+     {
+       "transcribedText": "i need help"
+     }
+     ```
+     - **transcribedText**: Text transcription of the user's audio response.
 
 2. Send this response to the `/user-response` endpoint.
 
@@ -58,8 +84,17 @@ If the user struggles and needs help:
    ```sh
    curl -X POST http://localhost:5001/help -H "Content-Type: application/json" -d '{}'
    ```
-   - **Expected Response**: An audio URL that says, "No worries! Here's a hint. Watch the video showing the sign for [color].", along with the URL of the video hint (`"hintVideoUrl"`).
-   - The front end should display the video or graphic as a visual clue.
+   - **Expected Response**: 
+     ```json
+     {
+       "audioUrl": "/audio/<filename>",
+       "prompt": "No worries! Here's a hint. Watch the video showing the sign for [color].",
+       "hintVideoUrl": "/videos/<color>.mp4"
+     }
+     ```
+     - **audioUrl**: URL to the generated audio file.
+     - **prompt**: Text version of the prompt.
+     - **hintVideoUrl**: URL to the hint video for the current color.
 
 ### 5. Retry Prompt
 The AI encourages the user to try again after providing help.
@@ -67,8 +102,15 @@ The AI encourages the user to try again after providing help.
 ```sh
 curl -X POST http://localhost:5001/retry -H "Content-Type: application/json" -d '{}'
 ```
-- **Expected Response**: An audio URL that prompts: "Now, give it another try! Show me the sign for [color]."
-- The front end should play the audio and encourage the user to try again.
+- **Expected Response**: 
+  ```json
+  {
+    "audioUrl": "/audio/<filename>",
+    "prompt": "Now, give it another try! Show me the sign for [color]."
+  }
+  ```
+  - **audioUrl**: URL to the generated audio file.
+  - **prompt**: Text version of the prompt.
 
 ### 6. User Successfully Signs the Color
 If the user successfully performs the sign, the front end uploads the confirmation audio.
@@ -76,14 +118,28 @@ If the user successfully performs the sign, the front end uploads the confirmati
 ```sh
 curl -X POST http://localhost:5001/transcribe-audio -F "file=@path/to/your/audio-file.mp3"
 ```
-- **Expected Response**: JSON with `"transcribedText": "i did it"`.
+- **Expected Response**: 
+  ```json
+  {
+    "transcribedText": "i did it"
+  }
+  ```
+  - **transcribedText**: Text transcription of the user's audio response.
 
 Send the transcription result to confirm the successful attempt:
 
 ```sh
 curl -X POST http://localhost:5001/user-response -H "Content-Type: application/json" -d '{"response": "i did it"}'
 ```
-- **Expected Response**: The AI congratulates the user and moves to the next color. For example: "Well done! You signed [color] perfectly. Let's move on to the next color."
+- **Expected Response**: 
+  ```json
+  {
+    "audioUrl": "/audio/<filename>",
+    "prompt": "Well done! You signed [color] perfectly. Let's move on to the next color."
+  }
+  ```
+  - **audioUrl**: URL to the generated audio file.
+  - **prompt**: Text version of the prompt.
 
 ### 7. Serve Audio File
 To serve an audio file generated by the AI, use the `/audio/<filename>` endpoint:
@@ -108,4 +164,3 @@ curl -X GET http://localhost:5001/audio/abcd1234.mp3 --output abcd1234.mp3
 - The process continues for each color in the set, with users moving to new colors after successful attempts or retries.
 
 This flow ensures an engaging and interactive learning experience for practicing Makaton signs for colors.
-
