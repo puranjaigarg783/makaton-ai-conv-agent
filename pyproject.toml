@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "makaton-ai-conv-agent"
+version = "0.1.0"
+description = "Elevenlabs Powered Conversational Agent for learning Makaton"
+authors = ["Puranjai Garg"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+flask = "^3.0.3"
+flask-cors = "^5.0.0"
+requests = "^2.32.3"
+elevenlabs = "^1.9.0"
+python-dotenv = "^1.0.1"
+whisper = "^1.1.10"
+openai = "^1.51.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
